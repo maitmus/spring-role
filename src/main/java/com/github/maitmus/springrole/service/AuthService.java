@@ -1,5 +1,6 @@
 package com.github.maitmus.springrole.service;
 
+import com.github.maitmus.springrole.constant.TokenType;
 import com.github.maitmus.springrole.dto.auth.LoginRequest;
 import com.github.maitmus.springrole.dto.auth.LoginResponse;
 import com.github.maitmus.springrole.dto.auth.RegisterRequest;
@@ -71,19 +72,19 @@ public class AuthService {
                 .roles(user.getRoles())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
-                .accessToken(generateToken(user.getUsername(), claims, "ACCESS"))
-                .refreshToken(generateToken(user.getUsername(), claims, "REFRESH"))
+                .accessToken(generateToken(user.getUsername(), claims, TokenType.ACCESS))
+                .refreshToken(generateToken(user.getUsername(), claims, TokenType.REFRESH))
                 .build();
     }
 
-    private String generateToken(String username, Map<String, Object> claims, String type) {
+    private String generateToken(String username, Map<String, Object> claims, TokenType type) {
         Date now = new Date();
 
         Date expiryDate;
 
-        if (type.equals("ACCESS")) {
+        if (type.equals(TokenType.ACCESS)) {
             expiryDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_TIME);
-        } else if (type.equals("REFRESH")) {
+        } else if (type.equals(TokenType.REFRESH)) {
             expiryDate = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_TIME);
         } else {
             throw new IllegalArgumentException("Unsupported type: " + type);
