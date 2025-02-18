@@ -3,11 +3,11 @@ package com.github.maitmus.springrole.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.maitmus.springrole.constant.Role;
 import com.github.maitmus.springrole.dto.error.CommonErrorResponse;
+import com.github.maitmus.springrole.dto.user.UserDetails;
 import com.github.maitmus.springrole.exception.ForbiddenException;
 import com.github.maitmus.springrole.validator.JwtTokenValidator;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +19,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -43,50 +44,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NotNull HttpServletRequest request,
                                     @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain) throws IOException {
-      try {
-          Cookie[] cookies = request.getCookies();
-          if (cookies == null) {
-              throw new ForbiddenException("Not authorized");
-          }
+        try {
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) {
+                throw new ForbiddenException("Not authorized");
+            }
 
-          Optional<String> accessToken = Arrays.stream(cookies)
-                  .filter(cookie -> "accessToken".equals(cookie.getName()))
-                  .map(Cookie::getValue)
-                  .findFirst();
+            Optional<String> accessToken = Arrays.stream(cookies)
+                    .filter(cookie -> "accessToken".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst();
 
-          Optional<String> refreshToken = Arrays.stream(cookies)
-                  .filter(cookie -> "refreshToken".equals(cookie.getName()))
-                  .map(Cookie::getValue)
-                  .findFirst();
+            Optional<String> refreshToken = Arrays.stream(cookies)
+                    .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst();
 
-          if (accessToken.isPresent() && refreshToken.isPresent()) {
-              Claims claims = jwtTokenValidator.validateToken(accessToken.get());
+            if (accessToken.isPresent() && refreshToken.isPresent()) {
+                Claims claims = jwtTokenValidator.validateToken(accessToken.get());
 
-              if (claims != null) {
-                  String username = claims.getSubject();
-                  List<String> rolesString = claims.get("roles", List.class);
-                  List<Role> roles = rolesString.stream().map(Role::valueOf).toList();
+                if (claims != null) {
+                    String username = claims.getSubject();
+                    Long id = claims.get("id", Long.class);
+                    List<String> rolesString = claims.get("roles", List.class);
+                    List<Role> roles = rolesString.stream().map(Role::valueOf).toList();
 
-                  UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                          username,
-                          null,
-                          roles.stream().map(role ->
-                                          new SimpleGrantedAuthority("ROLE_" + role.name()))
-                                  .collect(Collectors.toList())
-                  );
+                    UserDetails userDetails = new UserDetails(id, username, roles);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            roles.stream().map(role ->
+                                            new SimpleGrantedAuthority("ROLE_" + role.name()))
+                                    .collect(Collectors.toList())
+                    );
 
-                  SecurityContextHolder.getContext().setAuthentication(authentication);
-              }
-              filterChain.doFilter(request, response);
-          }
-      }
-      catch (Exception e) {
-        log.error(e.getMessage(), e);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.getWriter().write(objectMapper.writeValueAsString(
-              new CommonErrorResponse(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"
-              )));
-      }
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+                filterChain.doFilter(request, response);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write(objectMapper.writeValueAsString(
+                    new CommonErrorResponse(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"
+                    )));
+        }
     }
 }
