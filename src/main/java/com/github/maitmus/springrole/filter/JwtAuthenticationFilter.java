@@ -23,6 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (claims != null) {
                     String username = claims.getSubject();
                     Long id = claims.get("id", Long.class);
-                    List<String> rolesString = claims.get("roles", List.class);
+                    List<?> rawRoles = claims.get("roles", List.class);
+                    List<String> rolesString = rawRoles.stream()
+                            .filter(Objects::nonNull)
+                            .map(Object::toString)
+                            .toList();
                     List<Role> roles = rolesString.stream().map(Role::valueOf).toList();
 
                     UserDetails userDetails = new UserDetails(id, username, roles);

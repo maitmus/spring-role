@@ -2,6 +2,7 @@ package com.github.maitmus.springrole.controller;
 
 import com.github.maitmus.springrole.dto.user.UserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,14 +17,14 @@ public class RoleTestController {
     @GetMapping("/user")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "유저 전용 엔드포인트")
-    public UserDetails testRoleUser(@AuthenticationPrincipal UserDetails userDetails) {
+    public UserDetails testRoleUser(@Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
         return userDetails;
     }
 
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "관리자 전용 엔드포인트")
-    public UserDetails testRoleAdmin(@AuthenticationPrincipal UserDetails userDetails) {
+    public UserDetails testRoleAdmin(@Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
         return userDetails;
     }
 }
