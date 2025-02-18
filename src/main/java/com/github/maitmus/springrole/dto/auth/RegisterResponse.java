@@ -1,5 +1,6 @@
 package com.github.maitmus.springrole.dto.auth;
 
+import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.constant.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class RegisterResponse {
     private Long id;
     private String username;
     private List<Role> roles;
+    private EntityStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }

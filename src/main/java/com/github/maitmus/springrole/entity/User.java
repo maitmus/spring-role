@@ -1,5 +1,6 @@
 package com.github.maitmus.springrole.entity;
 
+import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.constant.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,11 +23,21 @@ public class User extends BaseEntity {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "userId"))
     @Enumerated(EnumType.STRING)
-    private final List<Role> roles = new ArrayList<>();
+    private List<Role> roles = new ArrayList<>();
 
-    public User(String username, String password) {
+    public User(String username, String password, EntityStatus status) {
         this.username = username;
         this.password = password;
         roles.add(Role.USER);
+
+        this.setEntityStatus(status);
+    }
+
+    public void updateRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+    public void delete() {
+        this.setEntityStatus(EntityStatus.DELETED);
     }
 }

@@ -1,5 +1,6 @@
 package com.github.maitmus.springrole.service;
 
+import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.constant.TokenType;
 import com.github.maitmus.springrole.dto.auth.LoginRequest;
 import com.github.maitmus.springrole.dto.auth.LoginResponse;
@@ -8,13 +9,14 @@ import com.github.maitmus.springrole.dto.auth.RegisterResponse;
 import com.github.maitmus.springrole.entity.User;
 import com.github.maitmus.springrole.exception.NotFoundException;
 import com.github.maitmus.springrole.exception.UnauthorizedException;
-import com.github.maitmus.springrole.repository.UsersRepository;
+import com.github.maitmus.springrole.repository.UserRepository;
 import com.github.maitmus.springrole.validator.JwtTokenValidator;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Map;
@@ -23,11 +25,11 @@ import java.util.Map;
 public class AuthService {
     private static final long ACCESS_TOKEN_EXPIRATION_TIME = 3600 * 1000L;
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 3600 * 1000 * 24 * 7L;
-    private final UsersRepository userRepository;
+    private final UserRepository userRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UsersRepository userRepository,
+    public AuthService(UserRepository userRepository,
                        JwtTokenValidator jwtTokenValidator,
                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -35,12 +37,14 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public RegisterResponse register(@Valid RegisterRequest request) {
         String hashedPassword = passwordEncoder.encode(request.getPassword());
         User user = this.userRepository.save(
                 new User(
                         request.getUsername(),
-                        hashedPassword
+                        hashedPassword,
+                        EntityStatus.ACTIVE
                 )
         );
 
@@ -48,12 +52,14 @@ public class AuthService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .roles(user.getRoles())
+                .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
 
     }
 
+    @Transactional(readOnly = true)
     public LoginResponse login(@Valid LoginRequest request) {
         User user = this.userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new NotFoundException("User not found, username: " + request.getUsername()));
@@ -66,10 +72,12 @@ public class AuthService {
         claims.put("id", user.getId());
         claims.put("username", user.getUsername());
         claims.put("roles", user.getRoles());
+        claims.put("status", user.getStatus());
         return LoginResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .roles(user.getRoles())
+                .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .accessToken(generateToken(user.getUsername(), claims, TokenType.ACCESS))

@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -16,11 +17,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<CommonErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        log.error(e.getMessage());
+        return new ResponseEntity<>(new CommonErrorResponse(status.value(), "Bad Request"), status);
+    }
+
     @ExceptionHandler({DataIntegrityViolationException.class})
     public ResponseEntity<CommonErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         HttpStatus status = HttpStatus.CONFLICT;
         log.error(e.getMessage(), e);
-        return new ResponseEntity<>(new CommonErrorResponse(status.value(), "Entity duplicated"), status);
+        return new ResponseEntity<>(new CommonErrorResponse(status.value(), "Integrity Violation"), status);
     }
 
     @ExceptionHandler({AuthorizationDeniedException.class})

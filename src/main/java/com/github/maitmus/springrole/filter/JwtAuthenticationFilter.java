@@ -1,10 +1,11 @@
 package com.github.maitmus.springrole.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.constant.Role;
+import com.github.maitmus.springrole.constant.TokenType;
 import com.github.maitmus.springrole.dto.error.CommonErrorResponse;
 import com.github.maitmus.springrole.dto.user.UserDetails;
-import com.github.maitmus.springrole.exception.ForbiddenException;
 import com.github.maitmus.springrole.validator.JwtTokenValidator;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -48,45 +49,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             Cookie[] cookies = request.getCookies();
             if (cookies == null) {
-                throw new ForbiddenException("Not authorized");
+                throw new Exception("Cookie not found");
             }
 
             Optional<String> accessToken = Arrays.stream(cookies)
-                    .filter(cookie -> "accessToken".equals(cookie.getName()))
+                    .filter(cookie -> TokenType.ACCESS.getValue().equals(cookie.getName()))
                     .map(Cookie::getValue)
                     .findFirst();
 
             Optional<String> refreshToken = Arrays.stream(cookies)
-                    .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                    .filter(cookie -> TokenType.REFRESH.getValue().equals(cookie.getName()))
                     .map(Cookie::getValue)
                     .findFirst();
 
-            if (accessToken.isPresent() && refreshToken.isPresent()) {
-                Claims claims = jwtTokenValidator.validateToken(accessToken.get());
-
-                if (claims != null) {
-                    String username = claims.getSubject();
-                    Long id = claims.get("id", Long.class);
-                    List<?> rawRoles = claims.get("roles", List.class);
-                    List<String> rolesString = rawRoles.stream()
-                            .filter(Objects::nonNull)
-                            .map(Object::toString)
-                            .toList();
-                    List<Role> roles = rolesString.stream().map(Role::valueOf).toList();
-
-                    UserDetails userDetails = new UserDetails(id, username, roles);
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            roles.stream().map(role ->
-                                            new SimpleGrantedAuthority("ROLE_" + role.name()))
-                                    .collect(Collectors.toList())
-                    );
-
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
-                filterChain.doFilter(request, response);
+            if (!(accessToken.isPresent() || refreshToken.isPresent())) {
+                throw new Exception("Token not found");
             }
+
+            Claims claims = jwtTokenValidator.validateToken(accessToken.get());
+
+            if (claims != null) {
+                String username = claims.getSubject();
+                Long id = claims.get("id", Long.class);
+                List<?> rawRoles = claims.get("roles", List.class);
+                String statusString = claims.get("status", String.class);
+                EntityStatus status = EntityStatus.valueOf(statusString);
+                List<String> rolesString = rawRoles.stream()
+                        .filter(Objects::nonNull)
+                        .map(Object::toString)
+                        .toList();
+                List<Role> roles = rolesString.stream().map(Role::valueOf).toList();
+
+                UserDetails userDetails = new UserDetails(id, username, roles, status);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        roles.stream().map(role ->
+                                        new SimpleGrantedAuthority("ROLE_" + role.name()))
+                                .collect(Collectors.toList())
+                );
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            filterChain.doFilter(request, response);
+
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

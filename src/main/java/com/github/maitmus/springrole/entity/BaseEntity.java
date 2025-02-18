@@ -1,5 +1,6 @@
 package com.github.maitmus.springrole.entity;
 
+import com.github.maitmus.springrole.constant.EntityStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
@@ -21,4 +22,12 @@ public class BaseEntity {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private EntityStatus status;
+
+    protected void setEntityStatus(EntityStatus status) {
+        this.status = status;
+    }
 }

@@ -1,5 +1,6 @@
 package com.github.maitmus.springrole.controller;
 
+import com.github.maitmus.springrole.constant.TokenType;
 import com.github.maitmus.springrole.dto.auth.LoginRequest;
 import com.github.maitmus.springrole.dto.auth.LoginResponse;
 import com.github.maitmus.springrole.dto.auth.RegisterRequest;
@@ -37,8 +38,8 @@ public class AuthController {
     @Operation(summary = "로그인")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
         LoginResponse loginResponse = this.authService.login(request);
-        Cookie accessTokenCookie = new Cookie("accessToken", loginResponse.getAccessToken());
-        Cookie refreshTokenCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
+        Cookie accessTokenCookie = new Cookie(TokenType.ACCESS.getValue(), loginResponse.getAccessToken());
+        Cookie refreshTokenCookie = new Cookie(TokenType.REFRESH.getValue(), loginResponse.getRefreshToken());
         accessTokenCookie.setPath("/");
         refreshTokenCookie.setPath("/");
         accessTokenCookie.setHttpOnly(true);
