@@ -2,7 +2,7 @@ package com.github.maitmus.springrole.dto.user;
 
 import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.constant.Role;
-import com.github.maitmus.springrole.entity.User;
+import com.github.maitmus.springrole.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

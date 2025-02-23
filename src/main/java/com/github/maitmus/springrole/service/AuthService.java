@@ -6,7 +6,7 @@ import com.github.maitmus.springrole.dto.auth.LoginRequest;
 import com.github.maitmus.springrole.dto.auth.LoginResponse;
 import com.github.maitmus.springrole.dto.auth.RegisterRequest;
 import com.github.maitmus.springrole.dto.auth.RegisterResponse;
-import com.github.maitmus.springrole.entity.User;
+import com.github.maitmus.springrole.entity.user.User;
 import com.github.maitmus.springrole.exception.NotFoundException;
 import com.github.maitmus.springrole.exception.UnauthorizedException;
 import com.github.maitmus.springrole.repository.UserRepository;

@@ -1,7 +1,8 @@
-package com.github.maitmus.springrole.entity;
+package com.github.maitmus.springrole.entity.user;
 
 import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.constant.Role;
+import com.github.maitmus.springrole.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,8 @@ import java.util.List;
 
 
 @Getter
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 @NoArgsConstructor
 public class User extends BaseEntity {
     @Column(unique = true, nullable = false)
@@ -29,8 +31,6 @@ public class User extends BaseEntity {
         this.username = username;
         this.password = password;
         roles.add(Role.USER);
-
-        this.setEntityStatus(status);
     }
 
     public void updateRoles(List<Role> roles) {

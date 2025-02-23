@@ -30,4 +30,11 @@ public class BaseEntity {
     protected void setEntityStatus(EntityStatus status) {
         this.status = status;
     }
+
+    @PrePersist
+    public void prePersist() {
+        if (status == null) {
+            setEntityStatus(EntityStatus.ACTIVE);
+        }
+    }
 }

@@ -1,7 +1,7 @@
 package com.github.maitmus.springrole.repository;
 
 import com.github.maitmus.springrole.constant.EntityStatus;
-import com.github.maitmus.springrole.entity.User;
+import com.github.maitmus.springrole.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
