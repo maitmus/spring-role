@@ -1,4 +1,4 @@
-package com.github.maitmus.springrole.service;
+package com.github.maitmus.springrole.service.user;
 
 import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.constant.Role;
@@ -6,7 +6,7 @@ import com.github.maitmus.springrole.dto.user.DeleteCurrentUserResponse;
 import com.github.maitmus.springrole.dto.user.UserDetails;
 import com.github.maitmus.springrole.entity.user.User;
 import com.github.maitmus.springrole.exception.NotFoundException;
-import com.github.maitmus.springrole.repository.UserRepository;
+import com.github.maitmus.springrole.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

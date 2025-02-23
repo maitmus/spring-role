@@ -1,4 +1,4 @@
-package com.github.maitmus.springrole.service;
+package com.github.maitmus.springrole.service.auth;
 
 import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.constant.TokenType;
@@ -9,7 +9,7 @@ import com.github.maitmus.springrole.dto.auth.RegisterResponse;
 import com.github.maitmus.springrole.entity.user.User;
 import com.github.maitmus.springrole.exception.NotFoundException;
 import com.github.maitmus.springrole.exception.UnauthorizedException;
-import com.github.maitmus.springrole.repository.UserRepository;
+import com.github.maitmus.springrole.repository.user.UserRepository;
 import com.github.maitmus.springrole.validator.JwtTokenValidator;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

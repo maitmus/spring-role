@@ -1,4 +1,4 @@
-package com.github.maitmus.springrole.repository;
+package com.github.maitmus.springrole.repository.comment;
 
 import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.entity.post.Comment;

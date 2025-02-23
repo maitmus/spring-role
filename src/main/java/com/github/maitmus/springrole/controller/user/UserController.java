@@ -1,10 +1,10 @@
-package com.github.maitmus.springrole.controller;
+package com.github.maitmus.springrole.controller.user;
 
 import com.github.maitmus.springrole.constant.TokenType;
 import com.github.maitmus.springrole.dto.user.DeleteCurrentUserResponse;
 import com.github.maitmus.springrole.dto.user.UpdateUserRoleRequest;
 import com.github.maitmus.springrole.dto.user.UserDetails;
-import com.github.maitmus.springrole.service.UserService;
+import com.github.maitmus.springrole.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

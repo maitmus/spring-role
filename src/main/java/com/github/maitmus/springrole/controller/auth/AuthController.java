@@ -1,11 +1,11 @@
-package com.github.maitmus.springrole.controller;
+package com.github.maitmus.springrole.controller.auth;
 
 import com.github.maitmus.springrole.constant.TokenType;
 import com.github.maitmus.springrole.dto.auth.LoginRequest;
 import com.github.maitmus.springrole.dto.auth.LoginResponse;
 import com.github.maitmus.springrole.dto.auth.RegisterRequest;
 import com.github.maitmus.springrole.dto.auth.RegisterResponse;
-import com.github.maitmus.springrole.service.AuthService;
+import com.github.maitmus.springrole.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;

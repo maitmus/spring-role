@@ -1,9 +1,9 @@
-package com.github.maitmus.springrole.controller;
+package com.github.maitmus.springrole.controller.post;
 
 import com.github.maitmus.springrole.dto.post.*;
 import com.github.maitmus.springrole.dto.user.UserDetails;
 import com.github.maitmus.springrole.entity.PaginationWrapper;
-import com.github.maitmus.springrole.service.PostService;
+import com.github.maitmus.springrole.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

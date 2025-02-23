@@ -1,4 +1,4 @@
-package com.github.maitmus.springrole.service;
+package com.github.maitmus.springrole.service.post;
 
 import com.github.maitmus.springrole.constant.EntityStatus;
 import com.github.maitmus.springrole.constant.Role;
@@ -8,9 +8,9 @@ import com.github.maitmus.springrole.entity.post.Comment;
 import com.github.maitmus.springrole.entity.post.Post;
 import com.github.maitmus.springrole.entity.user.User;
 import com.github.maitmus.springrole.exception.ForbiddenException;
-import com.github.maitmus.springrole.repository.CommentRepository;
-import com.github.maitmus.springrole.repository.PostRepository;
-import com.github.maitmus.springrole.repository.UserRepository;
+import com.github.maitmus.springrole.repository.comment.CommentRepository;
+import com.github.maitmus.springrole.repository.post.PostRepository;
+import com.github.maitmus.springrole.repository.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
