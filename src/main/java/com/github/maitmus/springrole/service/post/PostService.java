@@ -76,7 +76,7 @@ public class PostService {
         Post post = postRepository.findByIdAndUserAndStatus(postId, updater, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found, id: " + postId));
 
-        post.update(title, content, updater);
+        post.update(title, content);
 
         Post updatedPost = postRepository.save(post);
 

@@ -32,10 +32,9 @@ public class Post extends BaseEntity {
         this.user = user;
     }
 
-    public void update(String title, String content, User updater) {
+    public void update(String title, String content) {
         this.title = title;
         this.content = content;
-        this.user = updater;
     }
 
     public void delete() {
