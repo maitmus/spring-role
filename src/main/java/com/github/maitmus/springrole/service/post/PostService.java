@@ -5,10 +5,15 @@ import com.github.maitmus.springrole.constant.Role;
 import com.github.maitmus.springrole.dto.post.*;
 import com.github.maitmus.springrole.entity.PaginationWrapper;
 import com.github.maitmus.springrole.entity.post.Comment;
+import com.github.maitmus.springrole.entity.post.Dislike;
+import com.github.maitmus.springrole.entity.post.Like;
 import com.github.maitmus.springrole.entity.post.Post;
 import com.github.maitmus.springrole.entity.user.User;
+import com.github.maitmus.springrole.exception.ConflictException;
 import com.github.maitmus.springrole.exception.ForbiddenException;
 import com.github.maitmus.springrole.repository.comment.CommentRepository;
+import com.github.maitmus.springrole.repository.post.DislikeRepository;
+import com.github.maitmus.springrole.repository.post.LikeRepository;
 import com.github.maitmus.springrole.repository.post.PostRepository;
 import com.github.maitmus.springrole.repository.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,6 +30,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final LikeRepository likeRepository;
+    private final DislikeRepository dislikeRepository;
 
     @Transactional
     public PostCreateResponse createPost(@NotBlank String title, @NotBlank String content, Long userId) {
@@ -60,12 +67,16 @@ public class PostService {
         return new CommentCreateResponse(createdComment.getId(), updatedPost.getId());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PostDetail getPost(Long postId) {
         Post post = postRepository.findByIdAndStatus(postId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found, id: " + postId));
 
-        return new PostDetail(post);
+        post.increaseViews();
+
+        Post updatedPost = postRepository.save(post);
+
+        return new PostDetail(updatedPost);
     }
 
     @Transactional
@@ -119,6 +130,62 @@ public class PostService {
     }
 
     @Transactional
+    public PostUpdateResponse updateLikes(Long postId, Long userId) {
+        User user = userRepository.findByIdAndStatus(userId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new EntityNotFoundException("User not found, id: " + userId));
+        Post post = postRepository.findByIdAndStatus(postId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found, id: " + postId));
+
+        if (post.getUser().getId().equals(userId)) {
+            throw new ForbiddenException("Can't vote like to myself, postId: " + postId + ", userId: " + userId);
+        }
+
+        boolean isLikeAlreadyExists = likeRepository.existsByUserAndPost(user, post);
+
+        if (isLikeAlreadyExists) {
+            throw new ConflictException("Like already exists, postId: " + postId + ", userId: " + userId);
+        }
+
+        Like like = new Like(user, post);
+
+        Like createdLike = likeRepository.save(like);
+
+        post.increaseLikes(createdLike);
+
+        Post updatedPost = postRepository.save(post);
+
+        return new PostUpdateResponse(updatedPost.getId());
+    }
+
+    @Transactional
+    public PostUpdateResponse updateDislikes(Long postId, Long userId) {
+        User user = userRepository.findByIdAndStatus(userId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new EntityNotFoundException("User not found, id: " + userId));
+        Post post = postRepository.findByIdAndStatus(postId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found, id: " + postId));
+
+        if (post.getUser().getId().equals(userId)) {
+            throw new ForbiddenException("Can't vote dislike to myself, postId: " + postId + ", userId: " + userId);
+        }
+
+        boolean isDislikeAlreadyExists = dislikeRepository.existsByUserAndPost(user, post);
+
+        if (isDislikeAlreadyExists) {
+            throw new ConflictException("Like already exists, postId: " + postId + ", userId: " + userId);
+        }
+
+        Dislike dislike = new Dislike(user, post);
+
+        Dislike createdDislike = dislikeRepository.save(dislike);
+
+        post.increaseDislikes(createdDislike);
+
+        Post updatedPost = postRepository.save(post);
+
+        return new PostUpdateResponse(updatedPost.getId());
+    }
+
+    @Transactional
     public CommentDeleteResponse deleteComment(Long commentId, Long userId) {
         User deleter = userRepository.findByIdAndStatus(userId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new EntityNotFoundException("User not found, id: " + userId));
@@ -136,4 +203,6 @@ public class PostService {
 
         return new CommentDeleteResponse(deletedComment.getId());
     }
+
+
 }
