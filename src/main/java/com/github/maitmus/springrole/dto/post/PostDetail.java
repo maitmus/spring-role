@@ -15,6 +15,8 @@ public class PostDetail {
     private Long id;
     private String title;
     private String content;
+    private Integer views;
+    private Integer likes;
     private List<CommentDetail> comments;
     private UserDetails author;
     private LocalDateTime createdAt;
@@ -24,6 +26,8 @@ public class PostDetail {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
+        this.views = post.getViews();
+        this.likes = post.getLikes().size();
         this.comments = post.getComments().stream().map(CommentDetail::new).collect(Collectors.toList());
         this.author = new UserDetails(post.getUser());
         this.createdAt = post.getCreatedAt();

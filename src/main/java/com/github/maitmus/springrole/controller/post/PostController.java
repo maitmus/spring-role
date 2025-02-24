@@ -68,6 +68,22 @@ public class PostController {
         return this.postService.updatePost(postId, request.getTitle(), request.getContent(), userDetails.getId());
     }
 
+    @PatchMapping("/{post-id}/likes")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "게시물 추천")
+    public PostUpdateResponse updateLikes(@PathVariable("post-id") Long postId,
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
+        return this.postService.updateLikes(postId, userDetails.getId());
+    }
+
+    @PatchMapping("/{post-id}/dislikes")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "게시물 비추천")
+    public PostUpdateResponse updateDislikes(@PathVariable("post-id") Long postId,
+                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
+        return this.postService.updateDislikes(postId, userDetails.getId());
+    }
+
     @PutMapping("/comment")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "댓글 수정")
