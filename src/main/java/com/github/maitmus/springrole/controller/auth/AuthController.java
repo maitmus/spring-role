@@ -8,9 +8,10 @@ import com.github.maitmus.springrole.dto.auth.RegisterResponse;
 import com.github.maitmus.springrole.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,14 +39,21 @@ public class AuthController {
     @Operation(summary = "로그인")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
         LoginResponse loginResponse = this.authService.login(request);
-        Cookie accessTokenCookie = new Cookie(TokenType.ACCESS.getValue(), loginResponse.getAccessToken());
-        Cookie refreshTokenCookie = new Cookie(TokenType.REFRESH.getValue(), loginResponse.getRefreshToken());
-        accessTokenCookie.setPath("/");
-        refreshTokenCookie.setPath("/");
-        accessTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setHttpOnly(true);
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-        return ResponseEntity.ok(loginResponse);
+        ResponseCookie accessTokenCookie = ResponseCookie.from(TokenType.ACCESS.getValue(), loginResponse.getAccessToken())
+                .httpOnly(true)
+                .sameSite("Lax")
+                .path("/")
+                .build();
+
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(TokenType.REFRESH.getValue(), loginResponse.getRefreshToken())
+                .httpOnly(true)
+                .sameSite("Lax")
+                .path("/")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(loginResponse);
     }
 }
